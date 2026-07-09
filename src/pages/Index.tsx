@@ -56,8 +56,8 @@ const Index = () => {
       setAllTransactions(transactions);
       setSelectedFY("all");
       toast({ title: `Processed ${transactions.length} transactions → ${lots.length} tax lots` });
-    } catch (err: any) {
-      toast({ title: "Error parsing CSV", description: err.message, variant: "destructive" });
+    } catch (err: unknown) {
+      toast({ title: "Error parsing CSV", description: err instanceof Error ? err.message : String(err), variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
