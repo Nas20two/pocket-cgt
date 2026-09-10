@@ -84,7 +84,7 @@ Please keep the app 100% client-side and avoid adding backend dependencies or pa
 
 ## Credits
 
-Built by [NaSy Hub](https://nasyhub-olve.vercel.app).
+Built by [Nasyhub](https://www.nasyhub.com) — explore our [AI portfolio](https://www.nasyhub.com/ai).
 
 ## License
 

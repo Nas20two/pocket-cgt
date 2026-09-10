@@ -9,9 +9,12 @@ import { TaxLedger } from "@/components/TaxLedger";
 import { GainsChart } from "@/components/GainsChart";
 import { ExportMenu } from "@/components/ExportMenu";
 import { FinancialYearSelector } from "@/components/FinancialYearSelector";
+import { Hero } from "@/components/Hero";
+import { Footer } from "@/components/Footer";
 import { useToast } from "@/hooks/use-toast";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import type { ParseFileSource } from "@/lib/csvParser";
 
 const Index = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -20,6 +23,7 @@ const Index = () => {
   const [allTransactions, setAllTransactions] = useState<RawTransaction[]>([]);
   const [unmatchedSells, setUnmatchedSells] = useState<RawTransaction[]>([]);
   const [selectedFY, setSelectedFY] = useState<string>("all");
+  const [sources, setSources] = useState<ParseFileSource[]>([]);
   const { toast } = useToast();
 
   const financialYears = useMemo(
@@ -50,13 +54,14 @@ const Index = () => {
       setAllTaxLots(null);
       setAllTransactions([]);
       setUnmatchedSells([]);
+      setSources([]);
       return;
     }
 
     setIsLoading(true);
     try {
       const rawFiles = files.map((f) => f.file);
-      const { transactions, warnings, errors } = await parseCSVFiles(rawFiles);
+      const { transactions, warnings, errors, sources: parsedSources } = await parseCSVFiles(rawFiles);
 
       if (errors.length > 0) {
         errors.forEach((err) =>
@@ -74,6 +79,7 @@ const Index = () => {
         setAllTaxLots(null);
         setAllTransactions([]);
         setUnmatchedSells([]);
+        setSources([]);
         setIsLoading(false);
         return;
       }
@@ -82,6 +88,7 @@ const Index = () => {
       setAllTaxLots(lots);
       setAllTransactions(transactions);
       setUnmatchedSells(unmatched);
+      setSources(parsedSources);
       setSelectedFY("all");
       toast({ title: `Processed ${transactions.length} transactions → ${lots.length} tax lots` });
     } catch (err: unknown) {
@@ -92,11 +99,11 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex min-h-screen flex-col bg-background">
       <header className="border-b">
-        <div className="container mx-auto flex items-center justify-between px-4 py-4">
+        <div className="container mx-auto flex flex-wrap items-center justify-between gap-3 px-4 py-4">
           <div>
-            <h1 className="text-xl font-bold tracking-tight text-foreground">
+            <h1 className="text-lg font-bold tracking-tight text-foreground">
               Pocket CGT
             </h1>
             <p className="text-xs text-muted-foreground">
@@ -111,14 +118,16 @@ const Index = () => {
                   selected={selectedFY}
                   onSelect={setSelectedFY}
                 />
-                <ExportMenu taxLots={filteredLots} summary={summary} />
+                <ExportMenu taxLots={filteredLots} summary={summary} sources={sources} />
               </>
             )}
           </div>
         </div>
       </header>
 
-      <main className="container mx-auto space-y-6 px-4 py-6">
+      <main className="container mx-auto flex-1 space-y-6 px-4 py-6">
+        <Hero />
+
         <CsvUpload
           files={uploadedFiles}
           onFilesChange={handleFilesChange}
@@ -152,6 +161,8 @@ const Index = () => {
           </>
         )}
       </main>
+
+      <Footer />
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { Upload, FileText, X } from "lucide-react";
+import { Upload, FileText, X, ArrowUpDown, Landmark, FileCheck, ShieldCheck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { detectExchangeFromFile } from "@/lib/exchange/detectExchange";
@@ -28,6 +28,29 @@ function exchangeColor(exchange: string): string {
   if (exchange === "binance") return "bg-amber-100 text-amber-700";
   return "bg-red-100 text-red-700";
 }
+
+const features = [
+  {
+    icon: ArrowUpDown,
+    label: "Auto currency conversion",
+    description: "USDT → AUD using historical rates",
+  },
+  {
+    icon: Landmark,
+    label: "FIFO tax-lot matching",
+    description: "ATO short- & long-term CGT classification",
+  },
+  {
+    icon: FileCheck,
+    label: "CGT report",
+    description: "Summary, ledger, CSV + PDF export",
+  },
+  {
+    icon: ShieldCheck,
+    label: "Privacy first",
+    description: "Everything stays in your browser",
+  },
+];
 
 export function CsvUpload({ files, onFilesChange, isLoading }: CsvUploadProps) {
   const [isDragging, setIsDragging] = useState(false);
@@ -75,27 +98,38 @@ export function CsvUpload({ files, onFilesChange, isLoading }: CsvUploadProps) {
     setIsDragging(false);
   }, []);
 
+  const openFilePicker = useCallback(() => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".csv";
+    input.multiple = true;
+    input.onchange = (e) => {
+      addFiles((e.target as HTMLInputElement).files);
+    };
+    input.click();
+  }, [addFiles]);
+
   return (
     <div className="space-y-4">
       <div
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
-        className={`relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-10 transition-all cursor-pointer ${
+        className={`relative flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-8 sm:p-12 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
           isDragging
             ? "border-primary bg-primary/5 scale-[1.01]"
-            : "border-border hover:border-primary/50 hover:bg-muted/50"
+            : "border-border bg-card hover:border-primary/50 hover:bg-muted/30"
         }`}
-        onClick={() => {
-          const input = document.createElement("input");
-          input.type = "file";
-          input.accept = ".csv";
-          input.multiple = true;
-          input.onchange = (e) => {
-            addFiles((e.target as HTMLInputElement).files);
-          };
-          input.click();
+        onClick={openFilePicker}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            openFilePicker();
+          }
         }}
+        aria-label="Upload CSV files"
       >
         {isLoading ? (
           <div className="flex flex-col items-center gap-3">
@@ -103,17 +137,37 @@ export function CsvUpload({ files, onFilesChange, isLoading }: CsvUploadProps) {
             <p className="text-sm text-muted-foreground">Processing CSV…</p>
           </div>
         ) : (
-          <div className="flex flex-col items-center gap-3">
-            <Upload className="h-10 w-10 text-muted-foreground" />
-            <div className="text-center">
-              <p className="text-sm font-medium text-foreground">
-                Drop your CoinSpot or Binance CSV files here
+          <div className="flex flex-col items-center gap-4 text-center">
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
+              <Upload className="h-7 w-7 text-primary" aria-hidden="true" />
+            </div>
+            <div className="space-y-1">
+              <p className="text-base font-semibold text-foreground sm:text-lg">
+                Upload your CoinSpot or Binance CSV
               </p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                or click to browse — all processing is done locally in your
-                browser
+              <p className="text-sm text-muted-foreground">
+                Drag & drop files here or click to browse
               </p>
             </div>
+
+            <ul className="grid grid-cols-1 gap-2 pt-2 text-left sm:grid-cols-2">
+              {features.map(({ icon: Icon, label, description }) => (
+                <li
+                  key={label}
+                  className="flex items-start gap-3 rounded-lg border bg-background/60 p-3"
+                >
+                  <Icon className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+                  <div>
+                    <p className="text-xs font-medium text-foreground">{label}</p>
+                    <p className="text-xs text-muted-foreground">{description}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+
+            <Button type="button" variant="outline" className="pointer-events-none mt-1">
+              Select CSV files
+            </Button>
           </div>
         )}
       </div>

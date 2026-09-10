@@ -4,10 +4,16 @@ import { detectExchange, supportedFormatsMessage } from "./exchange/detectExchan
 import { parseCoinSpot } from "./exchange/coinspotParser";
 import { parseBinance, RateProvider } from "./exchange/binanceParser";
 
+export interface ParseFileSource {
+  fileName: string;
+  exchange: "coinspot" | "binance";
+}
+
 export interface ParseFilesResult {
   transactions: RawTransaction[];
   warnings: string[];
   errors: string[];
+  sources: ParseFileSource[];
 }
 
 interface ParsedFile {
@@ -77,6 +83,7 @@ export async function parseCSVFiles(files: File[], rateProvider?: RateProvider):
   const transactions: RawTransaction[] = [];
   const warnings: string[] = [];
   const errors: string[] = [];
+  const sources: ParseFileSource[] = [];
 
   for (const file of files) {
     const result = await parseFile(file, rateProvider);
@@ -84,6 +91,7 @@ export async function parseCSVFiles(files: File[], rateProvider?: RateProvider):
       errors.push(result.error);
     } else {
       transactions.push(...result.parsed.transactions);
+      sources.push({ fileName: result.parsed.fileName, exchange: result.parsed.exchange });
       if (result.parsed.warnings.length > 0) {
         warnings.push(`[${result.parsed.fileName}]`, ...result.parsed.warnings);
       }
@@ -97,5 +105,5 @@ export async function parseCSVFiles(files: File[], rateProvider?: RateProvider):
     warnings.push(`${duplicates} duplicate transaction(s) removed after merging files.`);
   }
 
-  return { transactions: unique, warnings, errors };
+  return { transactions: unique, warnings, errors, sources };
 }
