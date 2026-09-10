@@ -1,8 +1,8 @@
 import { useState, useMemo } from "react";
-import { parseCSV } from "@/lib/csvParser";
+import { parseCSVFiles } from "@/lib/csvParser";
 import { calculateTaxLots, calculateSummary, calculateCoinSummaries, getAvailableFinancialYears, filterByFinancialYear } from "@/lib/taxEngine";
 import { RawTransaction, TaxLot, TaxSummary, CoinSummary, FinancialYear } from "@/lib/types";
-import { CsvUpload } from "@/components/CsvUpload";
+import { CsvUpload, UploadedFile } from "@/components/CsvUpload";
 import { SummaryCards } from "@/components/SummaryCards";
 import { PerformanceTables } from "@/components/PerformanceTables";
 import { TaxLedger } from "@/components/TaxLedger";
@@ -10,11 +10,15 @@ import { GainsChart } from "@/components/GainsChart";
 import { ExportMenu } from "@/components/ExportMenu";
 import { FinancialYearSelector } from "@/components/FinancialYearSelector";
 import { useToast } from "@/hooks/use-toast";
+import { AlertCircle } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const Index = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [allTaxLots, setAllTaxLots] = useState<TaxLot[] | null>(null);
   const [allTransactions, setAllTransactions] = useState<RawTransaction[]>([]);
+  const [unmatchedSells, setUnmatchedSells] = useState<RawTransaction[]>([]);
   const [selectedFY, setSelectedFY] = useState<string>("all");
   const { toast } = useToast();
 
@@ -40,22 +44,48 @@ const Index = () => {
     [filteredLots]
   );
 
-  const handleFile = async (file: File) => {
+  const handleFilesChange = async (files: UploadedFile[]) => {
+    setUploadedFiles(files);
+    if (files.length === 0) {
+      setAllTaxLots(null);
+      setAllTransactions([]);
+      setUnmatchedSells([]);
+      return;
+    }
+
     setIsLoading(true);
     try {
-      const transactions: RawTransaction[] = await parseCSV(file);
+      const rawFiles = files.map((f) => f.file);
+      const { transactions, warnings, errors } = await parseCSVFiles(rawFiles);
+
+      if (errors.length > 0) {
+        errors.forEach((err) =>
+          toast({ title: "CSV error", description: err, variant: "destructive" })
+        );
+      }
+
+      if (warnings.length > 0) {
+        const message = warnings.slice(0, 5).join("\n") + (warnings.length > 5 ? "\n…" : "");
+        toast({ title: "CSV warnings", description: message });
+      }
+
       if (transactions.length === 0) {
-        toast({ title: "No Buy/Sell transactions found", variant: "destructive" });
+        toast({ title: "No transactions found", variant: "destructive" });
+        setAllTaxLots(null);
+        setAllTransactions([]);
+        setUnmatchedSells([]);
         setIsLoading(false);
         return;
       }
-      const lots = calculateTaxLots(transactions);
+
+      const { lots, unmatchedSells: unmatched } = calculateTaxLots(transactions);
       setAllTaxLots(lots);
       setAllTransactions(transactions);
+      setUnmatchedSells(unmatched);
       setSelectedFY("all");
       toast({ title: `Processed ${transactions.length} transactions → ${lots.length} tax lots` });
     } catch (err: unknown) {
-      toast({ title: "Error parsing CSV", description: err instanceof Error ? err.message : String(err), variant: "destructive" });
+      toast({ title: "Error processing CSV", description: err instanceof Error ? err.message : String(err), variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
@@ -89,9 +119,31 @@ const Index = () => {
       </header>
 
       <main className="container mx-auto space-y-6 px-4 py-6">
-        <CsvUpload onFileSelect={handleFile} isLoading={isLoading} />
+        <CsvUpload
+          files={uploadedFiles}
+          onFilesChange={handleFilesChange}
+          isLoading={isLoading}
+        />
 
-        {summary && filteredLots && (
+        {unmatchedSells.length > 0 && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Unmatched sell(s) detected</AlertTitle>
+            <AlertDescription>
+              The following sells have no matching buys in the uploaded data. Add the missing buy CSV before generating a report:
+              <ul className="mt-2 list-disc pl-5">
+                {unmatchedSells.map((tx, i) => (
+                  <li key={i}>
+                    {tx.asset}: {tx.amount.toLocaleString("en-AU", { maximumFractionDigits: 8 })} sold on{" "}
+                    {tx.transactionDate.toLocaleDateString("en-AU")}
+                  </li>
+                ))}
+              </ul>
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {summary && filteredLots && unmatchedSells.length === 0 && (
           <>
             <SummaryCards summary={summary} />
             <GainsChart taxLots={filteredLots} />

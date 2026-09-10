@@ -1,5 +1,5 @@
 /**
- * Expected parsed output for the fixture CSVs.
+ * Expected parsed output for the fixture CSVs, sorted chronologically.
  *
  * Rates used for USDT → AUD conversion:
  * - 2024-06-16: 1.50
@@ -15,7 +15,7 @@
  * to the equivalent UTC timestamps below.
  *
  * For Binance, `totalAud` is the net-of-fee value so the FIFO engine treats
- * fees the same way as CoinSpot:
+ * fees consistently with CoinSpot:
  * - BUY: totalAud = (Amount + fee_in_usdt) * usdtToAud
  * - SELL: totalAud = (Amount - fee_in_usdt) * usdtToAud
  */
@@ -39,36 +39,6 @@ export const expectedCoinSpotTransactions: RawTransaction[] = [
     totalIncGst: 50055,
   },
   {
-    transactionDate: new Date("2024-08-10T01:00:00.000Z"),
-    type: "Buy",
-    market: "BTC/AUD",
-    asset: "BTC",
-    amount: 0.5,
-    rateIncFee: 110110,
-    rateExFee: 110000,
-    fee: 55,
-    feeCurrency: "AUD",
-    feeAud: 60.5,
-    gstAud: 5.5,
-    totalAud: 55055,
-    totalIncGst: 55060.5,
-  },
-  {
-    transactionDate: new Date("2025-01-20T03:00:00.000Z"),
-    type: "Sell",
-    market: "BTC/AUD",
-    asset: "BTC",
-    amount: 0.6,
-    rateIncFee: 120120,
-    rateExFee: 120000,
-    fee: 72,
-    feeCurrency: "AUD",
-    feeAud: 79.2,
-    gstAud: 7.2,
-    totalAud: 71928,
-    totalIncGst: 72000,
-  },
-  {
     transactionDate: new Date("2024-06-30T23:00:00.000Z"),
     type: "Buy",
     market: "ADA/AUD",
@@ -84,6 +54,21 @@ export const expectedCoinSpotTransactions: RawTransaction[] = [
     totalIncGst: 505,
   },
   {
+    transactionDate: new Date("2024-08-10T01:00:00.000Z"),
+    type: "Buy",
+    market: "BTC/AUD",
+    asset: "BTC",
+    amount: 0.5,
+    rateIncFee: 110110,
+    rateExFee: 110000,
+    fee: 55,
+    feeCurrency: "AUD",
+    feeAud: 60.5,
+    gstAud: 5.5,
+    totalAud: 55055,
+    totalIncGst: 55060.5,
+  },
+  {
     transactionDate: new Date("2024-11-30T23:00:00.000Z"),
     type: "Sell",
     market: "ADA/AUD",
@@ -97,6 +82,21 @@ export const expectedCoinSpotTransactions: RawTransaction[] = [
     gstAud: 0.4,
     totalAud: 396,
     totalIncGst: 400,
+  },
+  {
+    transactionDate: new Date("2025-01-20T03:00:00.000Z"),
+    type: "Sell",
+    market: "BTC/AUD",
+    asset: "BTC",
+    amount: 0.6,
+    rateIncFee: 120120,
+    rateExFee: 120000,
+    fee: 72,
+    feeCurrency: "AUD",
+    feeAud: 79.2,
+    gstAud: 7.2,
+    totalAud: 71928,
+    totalIncGst: 72000,
   },
 ];
 

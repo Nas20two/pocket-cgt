@@ -2,7 +2,10 @@ import { RawTransaction, TaxLot, CoinSummary, TaxSummary, FinancialYear } from "
 
 const MS_PER_DAY = 1000 * 60 * 60 * 24;
 
-export function calculateTaxLots(transactions: RawTransaction[]): TaxLot[] {
+export function calculateTaxLots(transactions: RawTransaction[]): {
+  lots: TaxLot[];
+  unmatchedSells: RawTransaction[];
+} {
   // Group buys by asset, each with remaining amount
   const buyQueues: Record<
     string,
@@ -10,6 +13,7 @@ export function calculateTaxLots(transactions: RawTransaction[]): TaxLot[] {
   > = {};
 
   const taxLots: TaxLot[] = [];
+  const unmatchedSells: RawTransaction[] = [];
 
   // Process chronologically
   const sorted = [...transactions].sort(
@@ -69,10 +73,14 @@ export function calculateTaxLots(transactions: RawTransaction[]): TaxLot[] {
           queue.shift();
         }
       }
+
+      if (sellRemaining > 1e-10) {
+        unmatchedSells.push(tx);
+      }
     }
   }
 
-  return taxLots;
+  return { lots: taxLots, unmatchedSells };
 }
 
 export function calculateSummary(
