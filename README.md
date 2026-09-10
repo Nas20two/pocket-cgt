@@ -1,85 +1,91 @@
-# Pocket CGT - Crypto Capital Gains Tax Calculator
+# Pocket CGT
 
-A free, privacy-focused crypto tax calculator for Australian taxpayers. Built to avoid paying $75/year to Koinly for a simple tax report.
+A free, privacy-first crypto capital gains tax calculator for Australian taxpayers. All CSV processing, FIFO tax-lot matching and report generation happens in your browser — no data is uploaded to any server.
 
-**Live Demo:** https://pocket-cgt-clean.vercel.app  
-**Original Lovable Build:** https://pocketcryptocgt.lovable.app/
+**Live app:** https://app.pocketcgt.com  
+**Repository:** https://github.com/nasyhub/pocket-cgt
 
-## 🚀 Why I Built This
+## What is Pocket CGT?
 
-I needed to report crypto capital gains to the ATO for the 2024-2025 financial year. My accountant told me to use Koinly, which charges **$75 AUD per year** just to generate a basic report.
+Pocket CGT turns exchange transaction CSVs into Australian Taxation Office (ATO) friendly capital gains reports. It uses FIFO (First-In, First-Out) lot matching, handles short- and long-term CGT discounts, and produces summary tables, charts, and downloadable CSV/PDF reports.
 
-Since I had credits on Lovable, I decided to build my own solution in a weekend. Now I own the code completely, and you can use it too — for free.
+## Features
 
-## ✨ Features
+- **Client-side only** — your transaction data never leaves your device
+- **Multi-exchange support** — merge histories from multiple exchanges in one report
+- **FIFO tax-lot matching** — ATO-compliant short-term / long-term gain classification
+- **Financial-year filtering** — focus on the exact AU FY you need to report
+- **Summary cards, charts and ledger** — see gains, losses, and per-asset performance at a glance
+- **CSV + PDF export** — download a detailed ledger or ATO-style summary
+- **No sign-up, no pricing gate** — drop your files in and get your report
 
-- **CoinSpot CSV Import** - Upload your transaction history directly
-- **CGT Calculation** - Automatic calculation of capital gains/losses
-- **ATO-Compliant Reports** - Generate reports ready for your accountant
-- **Privacy-First** - Your data never leaves your device (client-side processing)
-- **PWA Support** - Install as an app on your phone for offline access
-- **Mobile-First Design** - Clean, simple interface optimized for mobile
+## Supported Exchanges
 
-## 🛠️ Tech Stack
+| Exchange | Status | Notes |
+|----------|--------|-------|
+| CoinSpot | ✅ Supported | `orderhistory.csv` export |
+| Binance  | ✅ Supported | Spot trade history export |
 
-- **Frontend:** React 18 + TypeScript
-- **Styling:** Tailwind CSS + shadcn/ui
-- **Build Tool:** Vite
-- **PWA:** Offline-capable with service worker
-- **CSV Parsing:** PapaParse
-- **PDF Export:** jsPDF
+Want support for another exchange? See [Contributing](#contributing).
 
-## 🚀 Getting Started
+## How to Use
+
+### Local development
 
 ```bash
-# Clone the repository
-git clone https://github.com/Nas20two/coin-tax-buddy.git
-cd coin-tax-buddy
+# Clone the repo
+git clone https://github.com/nasyhub/pocket-cgt.git
+cd pocket-cgt
 
 # Install dependencies
 npm install
 
-# Start development server
+# Start the dev server
 npm run dev
+
+# Run tests
+npm test
 
 # Build for production
 npm run build
 ```
 
-## 📊 How It Works
+### Generating a report
 
-1. **Export from CoinSpot** - Download your transaction CSV
-2. **Import to Pocket CGT** - Upload the CSV file
-3. **Review Transactions** - Check buy/sell entries
-4. **Generate Report** - Get your CGT summary for the ATO
-5. **Send to Accountant** - Or use for DIY tax filing
+1. Export your transaction history from each supported exchange as CSV.
+2. Open the app and drop the files onto the upload area.
+3. Review the summary cards, ledger, and charts.
+4. Select the financial year you need to report.
+5. Export the CSV ledger or PDF summary for your accountant.
 
-## 💰 Compare to Alternatives
+> ⚠️ **Not financial advice.** Always verify the output with a registered tax agent before lodging your tax return.
 
-| Tool | Price | Notes |
-|------|-------|-------|
-| **Koinly** | $75/year | Popular, but expensive for basic needs |
-| **CoinTracker** | $60-200/year | US-focused, limited AU support |
-| **Pocket CGT** | **Free** | Built for Australian taxpayers |
+## Tech Stack
 
-## 🗺️ Roadmap
+- **Framework:** React 18 + TypeScript
+- **Build tool:** Vite
+- **Styling:** Tailwind CSS + shadcn/ui
+- **Charts:** Recharts
+- **PDF export:** jsPDF
+- **CSV parsing:** PapaParse
+- **Testing:** Vitest + React Testing Library
 
-- [x] CoinSpot CSV import
-- [x] Basic CGT calculation
-- [x] PDF report generation
-- [ ] Support for Binance CSV format
-- [ ] Support for Coinbase CSV format
-- [ ] Custom domain (pocketcgt.com?)
-- [ ] Multi-year tax reporting
+## Contributing
 
-## 📄 License
+Contributions are welcome, especially new exchange CSV parsers and tests.
 
-MIT License - feel free to use, modify, and distribute.
+1. Fork the repository.
+2. Create a feature branch: `git checkout -b feat/your-feature`.
+3. Make your changes and add tests.
+4. Ensure `npm test` and `npm run build` pass.
+5. Open a pull request with a clear description and, where relevant, a fixture CSV + expected output.
 
----
+Please keep the app 100% client-side and avoid adding backend dependencies or paid feature gates.
 
-**Built by:** NaSy Hub  
-**Portfolio:** https://nasyhub-olve.vercel.app  
-**Contact:** nasiruddin.syed@hotmail.com
+## Credits
 
-*"Built to solve my own problem. Sharing it in case it helps you too."*
+Built by [NaSy Hub](https://nasyhub-olve.vercel.app).
+
+## License
+
+[MIT](./LICENSE)
