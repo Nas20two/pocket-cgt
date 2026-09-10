@@ -44,7 +44,7 @@ export function calculateTaxLots(transactions: RawTransaction[]): {
           (tx.transactionDate.getTime() - buy.tx.transactionDate.getTime()) /
           MS_PER_DAY;
         const holdingPeriod: "Short term" | "Long term" =
-          daysDiff > 365 ? "Long term" : "Short term";
+          daysDiff >= 365 ? "Long term" : "Short term";
 
         const discountedGain =
           holdingPeriod === "Long term" && gainLoss > 0
