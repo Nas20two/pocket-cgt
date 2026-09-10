@@ -19,10 +19,20 @@ These CSVs are the canonical input/output specs for the Pocket CGT exchange pars
   - 2024-09-01/02/05: 1.52
   - 2024-09-03: 1.525
 - **BNB → USDT** rates used for BNB fee conversion:
-  - 2024-06-16: 600
-  - 2024-09-01/02: 550
-  - 2024-09-03: 540
-- Binance quote-asset values are converted to AUD **without** adding the fee to `totalAud`. The converted fee is stored separately in `feeAud` to match the existing CoinSpot schema.
+  - 2024-06-16: 600 USDT
+  - 2024-09-01/02: 550 USDT
+  - 2024-09-03: 540 USDT
+
+## Fee handling
+
+- A `feeCurrency` field is added to `RawTransaction` so `fee` is always interpretable:
+  - CoinSpot: `feeCurrency = "AUD"`
+  - Binance BNB fee: `feeCurrency = "BNB"`
+  - Binance USDT fee: `feeCurrency = "USDT"`
+- For Binance, `totalAud` is the **net-of-fee** value so the FIFO engine treats fees consistently with CoinSpot:
+  - **Buy:** `totalAud = (Amount + fee_in_usdt) * usdtToAud` (fee added to cost basis)
+  - **Sell:** `totalAud = (Amount - fee_in_usdt) * usdtToAud` (fee subtracted from proceeds)
+- `rateIncFee` and `rateExFee` for Binance both show the market rate in AUD; Binance does not provide separate inc/ex rates.
 
 ## Edge cases covered
 
@@ -39,7 +49,7 @@ These CSVs are the canonical input/output specs for the Pocket CGT exchange pars
 2. **Spot sell with BNB fee** — row 2 (`ETHUSDT` SELL).
 3. **Cross-exchange FIFO** — row 3 (`BTCUSDT` SELL) will match against the CoinSpot BTC buys when files are merged.
 4. **Unmatched sell** — row 4 (`SOLUSDT` SELL) has no corresponding SOL buy. The UI must halt with a non-dismissible warning (VEX 🔴 4.2).
-5. **Futures/margin row** — row 5 (`BTCUSDT_PERP` BUY) must be rejected with a warning, not included in FIFO (VEX 1.2).
+5. **Futures/margin row** — row 5 (`BTCUSDT_PERP` BUY) must be rejected with reason "Futures/margin trades use different tax treatment" and not included in FIFO (VEX 1.2). Any pair containing `_PERP`, `FUTURES`, or `MARGIN` is rejected.
 6. **USDT-denominated fee** — row 6 (`ADAUSDT` BUY) has `Fee Coin = USDT` and tests the non-BNB fee path.
 7. **ISO vs `YYYY-MM-DD HH:MM:SS` date formats** — rows 1 and 6 are ISO-8601; rows 2-5 use the Binance text format.
 8. **Asset extraction** — pair suffix stripped: `ETHUSDT` → `ETH`, `ADAUSDT` → `ADA` (VEX 1.3).
@@ -52,4 +62,4 @@ These CSVs are the canonical input/output specs for the Pocket CGT exchange pars
 
 ## Updating fixtures
 
-If the parser design changes (e.g. fee inclusion in `totalAud`, date-time assumptions, or new columns), update `expected.ts` and this README in the same PR.
+If the parser design changes (e.g. date-time assumptions, fee inclusion rules, or new columns), update `expected.ts` and this README in the same PR.

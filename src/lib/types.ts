@@ -7,6 +7,7 @@ export interface RawTransaction {
   rateIncFee: number;
   rateExFee: number;
   fee: number;
+  feeCurrency: string;
   feeAud: number;
   gstAud: number;
   totalAud: number;

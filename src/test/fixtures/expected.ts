@@ -1,7 +1,7 @@
 /**
  * Expected parsed output for the fixture CSVs.
  *
- * Rates used for USD T → AUD conversion:
+ * Rates used for USDT → AUD conversion:
  * - 2024-06-16: 1.50
  * - 2024-09-01/02/05: 1.52
  * - 2024-09-03: 1.525
@@ -13,6 +13,11 @@
  *
  * CoinSpot dates are interpreted as Australia/Sydney local time and converted
  * to the equivalent UTC timestamps below.
+ *
+ * For Binance, `totalAud` is the net-of-fee value so the FIFO engine treats
+ * fees the same way as CoinSpot:
+ * - BUY: totalAud = (Amount + fee_in_usdt) * usdtToAud
+ * - SELL: totalAud = (Amount - fee_in_usdt) * usdtToAud
  */
 
 import { RawTransaction } from "@/lib/types";
@@ -27,6 +32,7 @@ export const expectedCoinSpotTransactions: RawTransaction[] = [
     rateIncFee: 100100,
     rateExFee: 100000,
     fee: 50,
+    feeCurrency: "AUD",
     feeAud: 55,
     gstAud: 5,
     totalAud: 50050,
@@ -41,6 +47,7 @@ export const expectedCoinSpotTransactions: RawTransaction[] = [
     rateIncFee: 110110,
     rateExFee: 110000,
     fee: 55,
+    feeCurrency: "AUD",
     feeAud: 60.5,
     gstAud: 5.5,
     totalAud: 55055,
@@ -55,6 +62,7 @@ export const expectedCoinSpotTransactions: RawTransaction[] = [
     rateIncFee: 120120,
     rateExFee: 120000,
     fee: 72,
+    feeCurrency: "AUD",
     feeAud: 79.2,
     gstAud: 7.2,
     totalAud: 71928,
@@ -69,6 +77,7 @@ export const expectedCoinSpotTransactions: RawTransaction[] = [
     rateIncFee: 0.505,
     rateExFee: 0.5,
     fee: 5,
+    feeCurrency: "AUD",
     feeAud: 5.5,
     gstAud: 0.5,
     totalAud: 500,
@@ -83,6 +92,7 @@ export const expectedCoinSpotTransactions: RawTransaction[] = [
     rateIncFee: 0.808,
     rateExFee: 0.8,
     fee: 4,
+    feeCurrency: "AUD",
     feeAud: 4.4,
     gstAud: 0.4,
     totalAud: 396,
@@ -100,10 +110,11 @@ export const expectedBinanceTransactions: RawTransaction[] = [
     rateIncFee: 5250,
     rateExFee: 5250,
     fee: 0.0005,
+    feeCurrency: "BNB",
     feeAud: 0.45,
     gstAud: 0,
-    totalAud: 5250,
-    totalIncGst: 5250,
+    totalAud: 5250.45,
+    totalIncGst: 5250.45,
   },
   {
     transactionDate: new Date("2024-09-01T00:00:00.000Z"),
@@ -114,10 +125,11 @@ export const expectedBinanceTransactions: RawTransaction[] = [
     rateIncFee: 6080,
     rateExFee: 6080,
     fee: 0.0004,
+    feeCurrency: "BNB",
     feeAud: 0.3344,
     gstAud: 0,
-    totalAud: 3040,
-    totalIncGst: 3040,
+    totalAud: 3039.6656,
+    totalIncGst: 3039.6656,
   },
   {
     transactionDate: new Date("2024-09-02T00:00:00.000Z"),
@@ -128,10 +140,11 @@ export const expectedBinanceTransactions: RawTransaction[] = [
     rateIncFee: 98800,
     rateExFee: 98800,
     fee: 0.0001,
+    feeCurrency: "BNB",
     feeAud: 0.0836,
     gstAud: 0,
-    totalAud: 9880,
-    totalIncGst: 9880,
+    totalAud: 9879.9164,
+    totalIncGst: 9879.9164,
   },
   {
     transactionDate: new Date("2024-09-03T00:00:00.000Z"),
@@ -142,10 +155,11 @@ export const expectedBinanceTransactions: RawTransaction[] = [
     rateIncFee: 228.75,
     rateExFee: 228.75,
     fee: 0.001,
+    feeCurrency: "BNB",
     feeAud: 0.8235,
     gstAud: 0,
-    totalAud: 2287.5,
-    totalIncGst: 2287.5,
+    totalAud: 2286.6765,
+    totalIncGst: 2286.6765,
   },
   {
     transactionDate: new Date("2024-09-05T00:00:00.000Z"),
@@ -156,9 +170,10 @@ export const expectedBinanceTransactions: RawTransaction[] = [
     rateIncFee: 0.684,
     rateExFee: 0.684,
     fee: 0.45,
+    feeCurrency: "USDT",
     feeAud: 0.684,
     gstAud: 0,
-    totalAud: 684,
-    totalIncGst: 684,
+    totalAud: 684.684,
+    totalIncGst: 684.684,
   },
 ];

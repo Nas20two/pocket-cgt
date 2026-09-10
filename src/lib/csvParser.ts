@@ -73,6 +73,7 @@ export function parseCSV(file: File): Promise<RawTransaction[]> {
               rateIncFee: parseNum(row["Rate inc. fee"]),
               rateExFee: parseNum(row["Rate ex. fee"]),
               fee: parseNum(row["Fee"]),
+              feeCurrency: "AUD",
               feeAud: parseNum(row["Fee AUD (inc GST)"]),
               gstAud: parseNum(row["GST AUD"]),
               totalAud: parseNum(row["Total AUD"]),
